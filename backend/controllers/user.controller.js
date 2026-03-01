@@ -3,6 +3,7 @@ import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js"
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
+import { sendVerificationEmail,sendWelcomeEmail } from "../mailtrap/email.js"
 
 const registerUser = asyncHandler(async (req,res)=>{
     
@@ -25,6 +26,7 @@ const registerUser = asyncHandler(async (req,res)=>{
         verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     })
     generateTokenAndSetCookie(res, user._id);
+    await sendVerificationEmail(user.email,verificationToken)
     const createdUser  = await User.findById(user._id).select(
         "-password"
     )
@@ -32,6 +34,32 @@ const registerUser = asyncHandler(async (req,res)=>{
         new ApiResponse(200,createdUser,"user registered successfully")
     )
 })
+const verifyEmail = asyncHandler(async(req,res)=>{
+    const {code}= req.body;
+    
+    const user = await User.findOne({
+        verificationToken:code,
+        verificationTokenExpiresAt:{$gt:Date.now()}
+    })
+    if(!user){
+        throw new ApiError(200,"Invalid or expired verification token")
+    }
+    user.isVerified = true;
+	user.verificationToken = undefined;
+	user.verificationTokenExpiresAt = undefined;
+    await user.save();
+
+    await sendWelcomeEmail(user.email,user.name)
+
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200,
+        user,
+        "email verified successfully"
+    ))
+})
 export {
     registerUser,
+    verifyEmail
 }
