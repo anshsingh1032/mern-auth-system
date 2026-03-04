@@ -75,6 +75,27 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk("auth/forgotPassword",
+  async(email , {rejectWithValue})=>{
+    try {
+      const response = await axios.post(`${API_URL}/forgot-password`,{email})
+      return response.data.message
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Error sending reset link")
+    }
+  }
+)
+export const resetPassword = createAsyncThunk('auth/resetPassword',
+  async({token,password},{rejectWithValue})=>{
+    try {
+      const response = await axios.post(`${API_URL}/reset-password/${token}`,{password})
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Error resetting password")
+    }
+  }
+)
+
 const initialState = {
   user: null,
   isAuthenticated: false,
@@ -93,15 +114,17 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(signup.pending, (state) => {
-        ((state.isLoading = true), (state.error = null));
+         state.isLoading = true
+         state.error = null;
       })
       .addCase(signup.fulfilled, (state, action) => {
-        ((state.isLoading = false),
-          (state.isAuthenticated = true),
-          (state.user = action.payload));
+        state.isLoading = false
+          state.isAuthenticated = true
+          state.user = action.payload;
       })
       .addCase(signup.rejected, (state, action) => {
-        ((state.isLoading = false), (state.error = action.payload));
+        state.isLoading = false
+        state.error = action.payload;
       })
 
       .addCase(login.pending, (state) => {
@@ -119,16 +142,17 @@ const authSlice = createSlice({
       })
 
       .addCase(verifyEmail.pending, (state) => {
-        ((state.isLoading = true), (state.error = null));
+        state.isLoading = true
+        state.error = null;
       })
       .addCase(verifyEmail.fulfilled, (state, action) => {
-        ((state.isLoading = false),
-          (state.isAuthenticated = true),
-          (state.user = action.payload));
+        state.isLoading = false
+          state.isAuthenticated = true
+          state.user = action.payload;
       })
       .addCase(verifyEmail.rejected, (state, action) => {
-        ((state.isLoading = false), 
-        (state.error = action.payload));
+        state.isLoading = false 
+        state.error = action.payload;
       })
 
       
@@ -151,7 +175,31 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
-      });
+      })
+
+      .addCase(forgotPassword.pending,(state)=>{
+        state.isLoading = true
+        state.error=null
+      })
+      .addCase(forgotPassword.fulfilled,(state)=>{
+        state.isLoading=false
+      })
+      .addCase(forgotPassword.rejected , (state,action)=>{
+        state.isLoading=false
+        state.error=action.payload
+      })
+
+      .addCase(resetPassword.pending , (state)=>{
+        state.isLoading=true
+        state.error=null
+      })
+      .addCase(resetPassword.fulfilled , (state)=>{
+        state.isLoading=false
+      })
+      .addCase(resetPassword.rejected , (state,action)=>{
+        state.isLoading=false
+        state.error=action.payload
+      })
   },
 });
 export const { clearError } = authSlice.actions;
