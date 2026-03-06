@@ -3,7 +3,7 @@ import { ApiError } from "../utils/apiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { User } from "../models/user.model.js"
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
-import { sendVerificationEmail,sendWelcomeEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../mailtrap/email.js"
+import { sendVerificationEmail,sendWelcomeEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../nodemailer/email.js"
 import crypto from "crypto";
 
 const registerUser = asyncHandler(async (req,res)=>{

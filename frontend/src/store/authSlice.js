@@ -28,7 +28,9 @@ export const login = createAsyncThunk(
         email,
         password,
       });
-      return response.data.data;
+      console.log(response.data);
+      
+      return response.data.data.user;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error logging in"
@@ -78,7 +80,7 @@ export const forgotPassword = createAsyncThunk("auth/forgotPassword",
   async(email , {rejectWithValue})=>{
     try {
       const response = await axios.post(`${API_URL}/forgot-password`,{email})
-      return response.data.data.message
+      return response.data.message
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Error sending reset link")
     }
