@@ -12,7 +12,7 @@ export const signup = createAsyncThunk(
         password,
         name,
       });
-      return response.data.user;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error signing up"
@@ -28,8 +28,7 @@ export const login = createAsyncThunk(
         email,
         password,
       });
-      console.log("LOGIN API RESPONSE:", response.data);
-      return response.data.data.user;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error logging in"
@@ -52,7 +51,7 @@ export const verifyEmail = createAsyncThunk(
   async (code, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/verify-email`, { code });
-      return response.data.user;
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error verifying email"
@@ -65,8 +64,8 @@ export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/check-auth`);
-      return response.data.user;
+      const response = await axios.get(`${API_URL}/check-auth`);      
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Not authenticated"
@@ -79,7 +78,7 @@ export const forgotPassword = createAsyncThunk("auth/forgotPassword",
   async(email , {rejectWithValue})=>{
     try {
       const response = await axios.post(`${API_URL}/forgot-password`,{email})
-      return response.data.message
+      return response.data.data.message
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Error sending reset link")
     }
@@ -89,7 +88,7 @@ export const resetPassword = createAsyncThunk('auth/resetPassword',
   async({token,password},{rejectWithValue})=>{
     try {
       const response = await axios.post(`${API_URL}/reset-password/${token}`,{password})
-      return response.data
+      return response.data.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Error resetting password")
     }
@@ -148,6 +147,7 @@ const authSlice = createSlice({
       .addCase(verifyEmail.fulfilled, (state, action) => {
         state.isLoading = false
           state.isAuthenticated = true
+          state.error = null
           state.user = action.payload;
       })
       .addCase(verifyEmail.rejected, (state, action) => {

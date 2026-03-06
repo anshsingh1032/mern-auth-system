@@ -43,7 +43,7 @@ const verifyEmail = asyncHandler(async(req,res)=>{
         verificationTokenExpiresAt:{$gt:Date.now()}
     })
     if(!user){
-        throw new ApiError(200,"Invalid or expired verification token")
+        throw new ApiError(400,"Invalid or expired verification token")
     }
     user.isVerified = true;
 	user.verificationToken = undefined;
